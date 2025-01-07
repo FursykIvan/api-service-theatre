@@ -3,12 +3,12 @@ from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.viewsets import GenericViewSet
 from rest_framework import mixins
 
 from theatre.models import Play, Performance, Reservation, Genre, Actor, TheatreHall
 from theatre.paginators import CustomPagination
+from theatre.permissions import IsAdminOrIfAuthenticatedReadOnly
 from theatre.serializers import (PlaySerializer,
                                  PlayDetailSerializer,
                                  PlayImageSerializer,
@@ -27,6 +27,7 @@ class GenreViewSet(mixins.CreateModelMixin,
 
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
+    permission_classes = [IsAdminOrIfAuthenticatedReadOnly]
 
 
 class ActorViewSet(mixins.CreateModelMixin,
@@ -35,6 +36,7 @@ class ActorViewSet(mixins.CreateModelMixin,
 
     queryset = Actor.objects.all()
     serializer_class = ActorSerializer
+    permission_classes = [IsAdminOrIfAuthenticatedReadOnly]
 
 
 class TheatreHallViewSet(mixins.CreateModelMixin,
@@ -42,6 +44,7 @@ class TheatreHallViewSet(mixins.CreateModelMixin,
                          GenericViewSet):
     queryset = TheatreHall.objects.all()
     serializer_class = TheatreHallSerializer
+    permission_classes = [IsAdminOrIfAuthenticatedReadOnly]
 
 
 class PlayViewSet(mixins.ListModelMixin,
@@ -51,6 +54,7 @@ class PlayViewSet(mixins.ListModelMixin,
     queryset = Play.objects.prefetch_related("genres", "actors")
     serializer_class = PlaySerializer
     pagination_class = CustomPagination
+    permission_classes = [IsAdminOrIfAuthenticatedReadOnly]
 
     def get_serializer_class(self):
         if self.action == "retrieve":
@@ -61,7 +65,7 @@ class PlayViewSet(mixins.ListModelMixin,
             return PlayListSerializer
         return super().get_serializer_class()
 
-    @action(methods=["POST"], detail=True, permission_classes=[IsAdminUser])
+    @action(methods=["POST"], detail=True, permission_classes=[IsAdminOrIfAuthenticatedReadOnly])
     def upload_image(self, request, pk=None):
         play = self.get_object()
         serializer = self.get_serializer(play, data=request.data)
@@ -122,7 +126,7 @@ class ReservationViewSet(mixins.ListModelMixin,
     )
     serializer_class = ReservationSerializer
     pagination_class = CustomPagination
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAdminOrIfAuthenticatedReadOnly]
 
     def get_queryset(self):
         return self.queryset.filter(user=self.request.user)
