@@ -178,7 +178,9 @@ class PerformanceDetailSerializer(serializers.ModelSerializer):
         )
 
 
-class ReservationSerializer(LoggingMixin, TransactionMixin, serializers.ModelSerializer):
+class ReservationSerializer(LoggingMixin,
+                            TransactionMixin,
+                            serializers.ModelSerializer):
     tickets = TicketSerializer(many=True)
 
     class Meta:

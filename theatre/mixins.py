@@ -1,6 +1,7 @@
 import logging
 from django.db import transaction
 
+
 class TransactionMixin:
     def create(self, validated_data):
         with transaction.atomic():
@@ -15,4 +16,3 @@ class LoggingMixin:
     def log_creation(self, instance):
         logger = logging.getLogger(__name__)
         logger.info(f"Created {instance.__class__.__name__} with ID {instance.id}")
-
