@@ -1,6 +1,6 @@
 services:
   db:
-    image: postgres:14.15-alpine3.21
+    image: postgres:14.15-alpine
     restart: always
     env_file:
       - .env
@@ -26,6 +26,8 @@ services:
       - media_volume:/app/media
     ports:
       - "8000:8000"
+    environment:
+      - IN_DOCKER=True
     env_file:
       - .env
     depends_on:
